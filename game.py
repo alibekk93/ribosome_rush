@@ -10,6 +10,7 @@ class Game:
     def __init__(self):
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Ribosome Rush")
+        self.gameplay_rect = pygame.Rect(0, 80, SCREEN_WIDTH, SCREEN_HEIGHT - 80)
         self.clock = pygame.time.Clock()
         self.images = load_images()
         self.sounds = load_sounds()
@@ -50,6 +51,14 @@ class Game:
         dy = keys[pygame.K_DOWN] - keys[pygame.K_UP]
         self.ribosome.move(dx, dy)
 
+        self.ribosome.rect.clamp_ip(self.gameplay_rect)
+        for obstacle in self.obstacles:
+            if (obstacle.rect.right < self.gameplay_rect.left or 
+                obstacle.rect.left > self.gameplay_rect.right or
+                obstacle.rect.bottom < self.gameplay_rect.top or 
+                obstacle.rect.top > self.gameplay_rect.bottom):
+                obstacle.remove(self.obstacles)
+
         self.spawn_game_objects()
         self.all_sprites.update()
         self.amino_acids.update()
@@ -60,9 +69,16 @@ class Game:
 
     def spawn_game_objects(self):
         if random.randint(1, 60) == 1:
-            self.amino_acids.add(AminoAcid(random.choice(ALL_AMINO_ACIDS), self.images))
+            new_amino_acid = AminoAcid(random.choice(ALL_AMINO_ACIDS), self.images)
+            new_amino_acid.rect.center = (
+                random.randint(self.gameplay_rect.left, self.gameplay_rect.right),
+                random.randint(self.gameplay_rect.top, self.gameplay_rect.bottom)
+            )
+            self.amino_acids.add(new_amino_acid)
+
         if random.randint(1, 120) == 1:
-            self.obstacles.add(Obstacle(self.images['obstacle']))
+            new_obstacle = Obstacle(self.images['obstacle'])
+            self.obstacles.add(new_obstacle)
 
     def handle_collisions(self):
         collected = pygame.sprite.spritecollide(self.ribosome, self.amino_acids, True)
@@ -92,8 +108,6 @@ class Game:
 
     def draw_ui(self):
         font = pygame.font.Font(None, 36)
-        score_text = font.render(f"Score: {self.score}", True, BLACK)
-        self.screen.blit(score_text, (SCREEN_WIDTH - 150, 50))
         elapsed_time = (pygame.time.get_ticks() - self.start_time) // 1000
         timer_text = font.render(f"Time: {ALLOWED_TIME - elapsed_time}", True, BLACK)
         self.screen.blit(timer_text, (SCREEN_WIDTH - 150, 10))

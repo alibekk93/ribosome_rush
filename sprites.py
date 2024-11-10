@@ -40,17 +40,17 @@ class Obstacle(pygame.sprite.Sprite):
         
         # Set initial position based on the starting edge
         if self.start_edge == 'top':
-            self.rect.bottom = 0
+            self.rect.bottom = 30
             self.rect.left = random.randint(0, SCREEN_WIDTH - self.rect.width)
         elif self.start_edge == 'bottom':
             self.rect.top = SCREEN_HEIGHT
             self.rect.left = random.randint(0, SCREEN_WIDTH - self.rect.width)
         elif self.start_edge == 'left':
             self.rect.right = 0
-            self.rect.top = random.randint(0, SCREEN_HEIGHT - self.rect.height)
+            self.rect.top = random.randint(0, SCREEN_HEIGHT-30 - self.rect.height)
         else:  # right
             self.rect.left = SCREEN_WIDTH
-            self.rect.top = random.randint(0, SCREEN_HEIGHT - self.rect.height)
+            self.rect.top = random.randint(0, SCREEN_HEIGHT-30 - self.rect.height)
         
         # Calculate direction to move across the screen
         target_x = random.randint(0, SCREEN_WIDTH)
