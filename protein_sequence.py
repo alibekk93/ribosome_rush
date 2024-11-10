@@ -4,7 +4,7 @@ from constants import *
 
 class ProteinSequence:
     def __init__(self, images):
-        self.sequence = [random.choice(ALL_AMINO_ACIDS) for _ in range(5)]
+        self.sequence = [random.choice(ALL_AMINO_ACIDS) for _ in range(10)]
         self.collected_sequence = []
         self.current_index = 0
         self.amino_acid_images = images

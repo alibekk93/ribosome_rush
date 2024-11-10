@@ -1,6 +1,7 @@
 import pygame
 import random
 from constants import *
+import math
 
 class Ribosome(pygame.sprite.Sprite):
     def __init__(self, image):
@@ -24,8 +25,16 @@ class AminoAcid(pygame.sprite.Sprite):
         self.rect.y = random.randint(0, SCREEN_HEIGHT - self.rect.height)
         self.type = amino_type
         self.spawn_time = pygame.time.get_ticks()
+        self.wobble_timer = 0
+        self.wobble_angle = random.uniform(0, 2 * math.pi)
 
     def update(self):
+        self.wobble_timer += 1
+        wobble_offset = 1.25 * math.sin(self.wobble_timer * 0.5)
+        wobble_offset_x = wobble_offset * math.cos(self.wobble_angle)
+        wobble_offset_y = wobble_offset * math.sin(self.wobble_angle)
+        self.rect.x += wobble_offset_x
+        self.rect.y += wobble_offset_y
         if pygame.time.get_ticks() - self.spawn_time > 10000:  # 10 seconds
             self.kill()
 
