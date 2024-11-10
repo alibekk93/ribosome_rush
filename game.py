@@ -52,12 +52,6 @@ class Game:
         self.ribosome.move(dx, dy)
 
         self.ribosome.rect.clamp_ip(self.gameplay_rect)
-        for obstacle in self.obstacles:
-            if (obstacle.rect.right < self.gameplay_rect.left or 
-                obstacle.rect.left > self.gameplay_rect.right or
-                obstacle.rect.bottom < self.gameplay_rect.top or 
-                obstacle.rect.top > self.gameplay_rect.bottom):
-                obstacle.remove(self.obstacles)
 
         self.spawn_game_objects()
         self.all_sprites.update()
@@ -100,6 +94,10 @@ class Game:
 
     def draw(self):
         self.screen.blit(self.images['background'], (0, 0))
+        # Create and draw the white overlay
+        white_overlay = pygame.Surface((SCREEN_WIDTH, 80))
+        white_overlay.fill(WHITE)
+        self.screen.blit(white_overlay, (0, 0))
         self.all_sprites.draw(self.screen)
         self.amino_acids.draw(self.screen)
         self.obstacles.draw(self.screen)
