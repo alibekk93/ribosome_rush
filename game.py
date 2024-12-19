@@ -35,7 +35,7 @@ class Game:
                 self.update()
                 self.draw()
             else:
-                self.draw_game_over()
+                self.show_game_over_screen()
             pygame.display.flip()
             self.clock.tick(FPS)
 
@@ -121,3 +121,60 @@ class Game:
         else:
             end_text = font.render(f"Game Over. Score: {final_score}/{max_possible_score}", True, RED)
         self.screen.blit(end_text, (SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2))
+    def show_game_over_screen(self):
+        self.draw()  # Draw the game state in the background
+        font = pygame.font.Font(None, 36)
+        final_score = self.protein_sequence.calculate_alignment_score()
+        max_possible_score = len(self.protein_sequence.sequence) * 10
+        score_percentage = (final_score / max_possible_score) * 100
+        if score_percentage >= 80:
+            end_text = font.render(f"You Win! Score: {final_score}/{max_possible_score}", True, GREEN)
+        else:
+            end_text = font.render(f"Game Over. Score: {final_score}/{max_possible_score}", True, RED)
+        self.screen.blit(end_text, (SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2))
+        play_again_button = self.create_play_again_button()
+        pygame.draw.rect(self.screen, WHITE, play_again_button)
+        play_again_text = font.render("Play Again", True, BLACK)
+        text_rect = play_again_text.get_rect(center=play_again_button.center)
+        self.screen.blit(play_again_text, text_rect)
+        pygame.display.flip()
+        waiting = True
+        while waiting:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if play_again_button.collidepoint(event.pos):
+                        self.reset_game()
+                        waiting = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        self.reset_game()
+                        waiting = False
+
+    
+    def create_play_again_button(self):
+        button_width, button_height = 200, 50
+        button_x = (SCREEN_WIDTH - button_width) // 2
+        button_y = SCREEN_HEIGHT * 3 // 4
+        button_rect = pygame.Rect(button_x, button_y, button_width, button_height)
+        return button_rect
+    
+    def reset_game(self):
+        # Remove all sprites
+        for sprite in self.all_sprites:
+            sprite.kill()
+        
+        # Clear sprite groups
+        self.amino_acids.empty()
+        self.obstacles.empty()
+        
+        # Reset game state
+        self.score = 0
+        self.start_time = pygame.time.get_ticks()
+        self.game_over = False
+        
+        # Use setup_game to reinitialize the game
+        self.setup_game()
+
