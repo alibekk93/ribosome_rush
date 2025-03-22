@@ -21,21 +21,38 @@ class AminoAcid(pygame.sprite.Sprite):
         super().__init__()
         self.image = images[amino_type]
         self.rect = self.image.get_rect()
-        self.rect.x = random.randint(0, SCREEN_WIDTH - self.rect.width)
-        self.rect.y = random.randint(0, SCREEN_HEIGHT - self.rect.height)
+        # Initialize position variables
+        self.pos_x = 0.0
+        self.pos_y = 0.0
+        self.original_x = None
+        self.original_y = None
         self.type = amino_type
         self.spawn_time = pygame.time.get_ticks()
         self.wobble_timer = 0
         self.wobble_angle = random.uniform(0, 2 * math.pi)
 
+    def set_position(self, center):
+        """Set the initial position and store it as the original position."""
+        self.rect.center = center
+        self.pos_x = self.rect.x  # Use rect.x as the starting point after centering
+        self.pos_y = self.rect.y
+        self.original_x = self.pos_x
+        self.original_y = self.pos_y
+
     def update(self):
+        """Update position to wobble around the original position."""
+        if self.original_x is None or self.original_y is None:
+            return  # Skip update if position hasn't been set
         self.wobble_timer += 1
         wobble_offset = 1.25 * math.sin(self.wobble_timer * 0.5)
-        wobble_offset_x = wobble_offset * math.cos(self.wobble_angle)
-        wobble_offset_y = wobble_offset * math.sin(self.wobble_angle)
-        self.rect.x += wobble_offset_x
-        self.rect.y += wobble_offset_y
-        if pygame.time.get_ticks() - self.spawn_time > 10000:  # 10 seconds
+        offset_x = wobble_offset * math.cos(self.wobble_angle)
+        offset_y = wobble_offset * math.sin(self.wobble_angle)
+        # Set position as original position plus current offset
+        self.pos_x = self.original_x + offset_x
+        self.pos_y = self.original_y + offset_y
+        self.rect.x = int(self.pos_x)
+        self.rect.y = int(self.pos_y)
+        if pygame.time.get_ticks() - self.spawn_time > 10000:
             self.kill()
 
 class Obstacle(pygame.sprite.Sprite):

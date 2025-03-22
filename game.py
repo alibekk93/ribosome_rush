@@ -64,10 +64,9 @@ class Game:
     def spawn_game_objects(self):
         if random.randint(1, 60) == 1:
             new_amino_acid = AminoAcid(random.choice(ALL_AMINO_ACIDS), self.images)
-            new_amino_acid.rect.center = (
-                random.randint(self.gameplay_rect.left, self.gameplay_rect.right),
-                random.randint(self.gameplay_rect.top, self.gameplay_rect.bottom)
-            )
+            center_x = random.randint(self.gameplay_rect.left, self.gameplay_rect.right)
+            center_y = random.randint(self.gameplay_rect.top, self.gameplay_rect.bottom)
+            new_amino_acid.set_position((center_x, center_y))
             self.amino_acids.add(new_amino_acid)
 
         if random.randint(1, 120) == 1:
