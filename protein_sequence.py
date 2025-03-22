@@ -20,11 +20,23 @@ class ProteinSequence:
     
     def calculate_alignment_score(self):
         alignment_score = 0
-        for i in range(min(len(self.sequence), len(self.collected_sequence))):
-            if self.sequence[i] == self.collected_sequence[i]:
-                alignment_score += 10
-            elif self.collected_sequence[i] in AMINO_ACIDS[self.get_amino_acid_group(self.sequence[i])]:
-                alignment_score += 5  # Partial score for correct group
+        min_len = min(len(self.sequence), len(self.collected_sequence))
+        for i in range(min_len):
+            target_aa = self.sequence[i]
+            collected_aa = self.collected_sequence[i]
+            if collected_aa == target_aa:
+                alignment_score += 10  # Exact match at the same position
+            else:
+                # Check for adjacent matches
+                adjacent_match = False
+                if i > 0 and self.collected_sequence[i-1] == target_aa:
+                    adjacent_match = True
+                if i < min_len - 1 and self.collected_sequence[i+1] == target_aa:
+                    adjacent_match = True
+                if adjacent_match:
+                    alignment_score += 5  # Correct AA at adjacent position
+                elif self.get_amino_acid_group(collected_aa) == self.get_amino_acid_group(target_aa):
+                    alignment_score += 2  # Same group at the same position
         return alignment_score
 
     def get_amino_acid_group(self, amino_acid):
