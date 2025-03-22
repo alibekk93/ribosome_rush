@@ -115,28 +115,102 @@ class Game:
         final_score = self.protein_sequence.calculate_alignment_score()
         max_possible_score = len(self.protein_sequence.sequence) * 10
         score_percentage = (final_score / max_possible_score) * 100
-        if score_percentage >= 80:
+        if score_percentage >= 50:
             end_text = font.render(f"You Win! Score: {final_score}/{max_possible_score}", True, GREEN)
         else:
             end_text = font.render(f"Game Over. Score: {final_score}/{max_possible_score}", True, RED)
         self.screen.blit(end_text, (SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2))
+    
     def show_game_over_screen(self):
-        self.draw()  # Draw the game state in the background
-        font = pygame.font.Font(None, 36)
-        final_score = self.protein_sequence.calculate_alignment_score()
+        self.draw()  # Draw the game state behind the game over screen
+
+        # Load fonts (use custom font if available, otherwise fallback to default)
+        try:
+            title_font = pygame.font.Font('path/to/font.ttf', 40)
+            explanation_font = pygame.font.Font('path/to/font.ttf', 26)
+        except:
+            title_font = pygame.font.Font(None, 40)
+            explanation_font = pygame.font.Font(None, 26)
+
+        # Calculate score and explanation
+        final_score, explanation = self.protein_sequence.calculate_alignment_score()
         max_possible_score = len(self.protein_sequence.sequence) * 10
         score_percentage = (final_score / max_possible_score) * 100
+
+        # Render title text
         if score_percentage >= 80:
-            end_text = font.render(f"You Win! Score: {final_score}/{max_possible_score}", True, GREEN)
+            title_text = title_font.render(f"You Win! Score: {final_score}/{max_possible_score}", True, (0, 255, 0))
         else:
-            end_text = font.render(f"Game Over. Score: {final_score}/{max_possible_score}", True, RED)
-        self.screen.blit(end_text, (SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2))
-        play_again_button = self.create_play_again_button()
-        pygame.draw.rect(self.screen, WHITE, play_again_button)
-        play_again_text = font.render("Play Again", True, BLACK)
-        text_rect = play_again_text.get_rect(center=play_again_button.center)
-        self.screen.blit(play_again_text, text_rect)
+            title_text = title_font.render(f"Game Over. Score: {final_score}/{max_possible_score}", True, (255, 0, 0))
+        title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 200))
+
+        # Create a semi-transparent background for the explanation
+        explanation_bg = pygame.Surface((SCREEN_WIDTH - 80, 350))
+        explanation_bg.set_alpha(220)
+        explanation_bg.fill((240, 240, 240))
+        explanation_bg_rect = explanation_bg.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 10))
+
+        # Create explanation text surfaces and their positions
+        explanation_surfaces = []
+        explanation_rects = []
+        y_pos = explanation_bg_rect.top + 20
+        for idx, entry in enumerate(explanation):
+            text = f"Pos {idx+1}: Target: {entry['target']} | Collected: {entry['collected']} | Score: {entry['score']} | {entry['reason']}"
+            text_surface = explanation_font.render(text, True, (50, 50, 50))
+            text_rect = text_surface.get_rect(center=(SCREEN_WIDTH // 2, y_pos))
+            explanation_surfaces.append(text_surface)
+            explanation_rects.append(text_rect)
+            y_pos += 35
+
+        # Animation: Fade in each line sequentially, keeping all previous lines visible
+        current_fade_index = 0
+        current_alpha = 0
+        while current_fade_index < len(explanation):
+            # Redraw background and title
+            self.screen.blit(explanation_bg, explanation_bg_rect)
+            self.screen.blit(title_text, title_rect)
+
+            # Draw all lines up to and including the current one being faded in
+            for j in range(current_fade_index + 1):
+                text_surface = explanation_surfaces[j]
+                if j < current_fade_index:
+                    # Previous lines stay fully visible
+                    temp_surface = text_surface.copy()
+                    temp_surface.set_alpha(255)
+                else:
+                    # Current line fades in
+                    temp_surface = text_surface.copy()
+                    temp_surface.set_alpha(min(current_alpha, 255))
+                self.screen.blit(temp_surface, explanation_rects[j])
+
+            pygame.display.flip()
+            pygame.time.delay(10)  # Small delay for smooth animation
+
+            # Update alpha for the current line
+            current_alpha += 8
+            if current_alpha >= 255:
+                current_fade_index += 1
+                current_alpha = 0
+
+        # After animation, ensure all lines are fully visible
+        self.screen.blit(explanation_bg, explanation_bg_rect)
+        self.screen.blit(title_text, title_rect)
+        for j in range(len(explanation)):
+            temp_surface = explanation_surfaces[j].copy()
+            temp_surface.set_alpha(255)
+            self.screen.blit(temp_surface, explanation_rects[j])
+
+        # Draw the "Play Again" button
+        play_again_button = pygame.Rect(0, 0, 200, 60)
+        play_again_button.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT - 80)
+        pygame.draw.rect(self.screen, (100, 150, 255), play_again_button, border_radius=10)
+        play_again_text = title_font.render("Play Again", True, (255, 255, 255))
+        play_again_text_rect = play_again_text.get_rect(center=play_again_button.center)
+        self.screen.blit(play_again_text, play_again_text_rect)
+
         pygame.display.flip()
+
+        # Handle input to restart or quit
         waiting = True
         while waiting:
             for event in pygame.event.get():
@@ -151,7 +225,6 @@ class Game:
                     if event.key == pygame.K_RETURN:
                         self.reset_game()
                         waiting = False
-
     
     def create_play_again_button(self):
         button_width, button_height = 200, 50
