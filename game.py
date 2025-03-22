@@ -138,7 +138,7 @@ class Game:
         score_percentage = (final_score / max_possible_score) * 100
 
         # Render title text
-        if score_percentage >= 80:
+        if score_percentage >= 50:
             title_text = title_font.render(f"You Win! Score: {final_score}/{max_possible_score}", True, (0, 255, 0))
         else:
             title_text = title_font.render(f"Game Over. Score: {final_score}/{max_possible_score}", True, (255, 0, 0))

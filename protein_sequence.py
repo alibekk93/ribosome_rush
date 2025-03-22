@@ -38,10 +38,10 @@ class ProteinSequence:
                     if i < len(self.sequence)-1 and i+1 < len(self.collected_sequence) and self.collected_sequence[i+1] == target_aa:
                         adjacent_match = True
                     if adjacent_match:
-                        score = 5
+                        score = 7
                         reason = "Adjacent match"
                     elif self.get_amino_acid_group(collected_aa) == self.get_amino_acid_group(target_aa):
-                        score = 2
+                        score = 5
                         reason = "Group match"
                     else:
                         score = 0
