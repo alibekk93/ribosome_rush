@@ -10,7 +10,7 @@ A simple Pygame-based game where you control a ribosome to collect amino acids i
   - Exact match: 10 points
   - Adjacent match: 5 points
   - Group match: 2 points
-- **Game Over**: Ends when time (180s) runs out or 10 amino acids are collected. Win by scoring ≥80%.
+- **Game Over**: Ends when time (180s) runs out or 10 amino acids are collected. Win by scoring ≥50%.
 
 ## Installation
 1. Ensure Python and Pygame are installed:
