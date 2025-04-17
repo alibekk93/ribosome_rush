@@ -24,3 +24,5 @@ A simple Pygame-based game where you control a ribosome to collect amino acids i
 ## Requirements
 - Python 3.x
 - Pygame
+
+# test
